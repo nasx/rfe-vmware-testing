@@ -1,0 +1,65 @@
+- name: Provision VMware Instances
+  hosts: localhost
+  tasks:
+    - name: Create VMware Instances
+      ansible.builtin.include_role:
+        name: vmware-rfe-guests
+
+    - name: Update pfSense DHCP Reservations
+      ansible.builtin.include_role:
+        name: pfsense-dhcp-reserved-ip
+      vars:
+        pd_cid: "{{ item.name }}"
+        pd_dns1: "{{ item.dns }}"
+        pd_gateway: "{{ item.gateway }}"
+        pd_hostname: "{{ item.name }}"
+        pd_ipaddr: "{{ item.ip }}"
+        pd_mac: "{{ item.mac }}"
+      loop: "{{ host_mac_list }}"
+
+    - name: Generate IPA Session Cookie
+      ansible.builtin.uri:
+        body: "user={{ ipa_username }}&password={{ ipa_password }}"
+        headers:
+          Accept: "text/plain"
+          Content-Type: "application/x-www-form-urlencoded"
+          Referer: "https://{{ ipa_hostname }}/ipa"
+        method: POST
+        status_code: 200
+        url: "https://{{ ipa_hostname }}/ipa/session/login_password"
+        validate_certs: no
+      register: ipa_session
+
+    - name: Create A/PTR Records
+      uri:
+        body:
+          method: dnsrecord_add
+          params:
+          - - "{{ base_domain }}."
+            - "{{ item }}"
+          - a_extra_create_reverse: true
+            a_part_ip_address: "{{ hostvars[item].ip }}"
+        body_format: json
+        headers:
+          Accept: "application/json"
+          Cookie: "{{ ipa_session.set_cookie }}"
+          Referer: "https://{{ ipa_hostname }}/ipa"
+        method: POST
+        status_code: 200
+        url: "https://{{ ipa_hostname }}/ipa/session/json"
+        validate_certs: no
+      with_items:
+        - "{{ groups[provision_group] }}"
+
+    - name: Start VMware Instances
+      vmware_guest:
+        cluster: "{{ vcenter_cluster }}"
+        datacenter: "{{ vcenter_datacenter }}"
+        hostname: "{{ vcenter_hostname }}"
+        name: "{{ item }}.{{ base_domain }}"
+        password: "{{ vcenter_password }}"
+        state: poweredon
+        username: "{{ vcenter_username }}"
+        validate_certs: no
+      with_items:
+        - "{{ groups[provision_group] }}"

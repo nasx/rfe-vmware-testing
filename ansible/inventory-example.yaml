@@ -1,0 +1,159 @@
+---
+all:
+  vars:
+    provision_group: pg
+    base_domain: lab.uc2.io
+    vcenter_network: Lab Network
+    vcenter_datastore: pool-nvme-vms
+    vcenter_datacenter: PWC
+    vcenter_cluster: Primary
+    vcenter_folder: edge
+    vcenter_iso_datastore: pool-nvme-vms
+    vcenter_iso_name: 8f3e035e-e1ed-4d70-9984-9976152d35fa-auto.iso
+  children:
+    pg:
+      hosts:
+        edge1:
+          ansible_host: 172.16.10.81
+          ip: 172.16.10.81
+          gateway: 172.16.10.254
+          mask: 255.255.255.0
+          dns: 172.16.10.2
+          memory: 4192
+          cores: 2
+          datastore: pool-nvme-vms
+          disks:
+            - size_gb: 20
+              type: thin
+              state: present
+              scsi_controller: 0
+              unit_number: 0
+              datastore: pool-nvme-vms
+        edge2:
+          ansible_host: 172.16.10.82
+          ip: 172.16.10.82
+          gateway: 172.16.10.254
+          mask: 255.255.255.0
+          dns: 172.16.10.2
+          memory: 4192
+          cores: 2
+          datastore: pool-nvme-vms
+          disks:
+            - size_gb: 20
+              type: thin
+              state: present
+              scsi_controller: 0
+              unit_number: 0
+              datastore: pool-nvme-vms
+        edge3:
+          ansible_host: 172.16.10.83
+          ip: 172.16.10.83
+          gateway: 172.16.10.254
+          mask: 255.255.255.0
+          dns: 172.16.10.2
+          memory: 4192
+          cores: 2
+          datastore: pool-nvme-vms
+          disks:
+            - size_gb: 20
+              type: thin
+              state: present
+              scsi_controller: 0
+              unit_number: 0
+              datastore: pool-nvme-vms
+        edge4:
+          ansible_host: 172.16.10.84
+          ip: 172.16.10.84
+          gateway: 172.16.10.254
+          mask: 255.255.255.0
+          dns: 172.16.10.2
+          memory: 4192
+          cores: 2
+          datastore: pool-nvme-vms
+          disks:
+            - size_gb: 20
+              type: thin
+              state: present
+              scsi_controller: 0
+              unit_number: 0
+              datastore: pool-nvme-vms
+        edge5:
+          ansible_host: 172.16.10.85
+          ip: 172.16.10.85
+          gateway: 172.16.10.254
+          mask: 255.255.255.0
+          dns: 172.16.10.2
+          memory: 4192
+          cores: 2
+          datastore: pool-nvme-vms
+          disks:
+            - size_gb: 20
+              type: thin
+              state: present
+              scsi_controller: 0
+              unit_number: 0
+              datastore: pool-nvme-vms
+        edge6:
+          ansible_host: 172.16.10.86
+          ip: 172.16.10.86
+          gateway: 172.16.10.254
+          mask: 255.255.255.0
+          dns: 172.16.10.2
+          memory: 4192
+          cores: 2
+          datastore: pool-nvme-vms
+          disks:
+            - size_gb: 20
+              type: thin
+              state: present
+              scsi_controller: 0
+              unit_number: 0
+              datastore: pool-nvme-vms
+        edge7:
+          ansible_host: 172.16.10.87
+          ip: 172.16.10.87
+          gateway: 172.16.10.254
+          mask: 255.255.255.0
+          dns: 172.16.10.2
+          memory: 4192
+          cores: 2
+          datastore: pool-nvme-vms
+          disks:
+            - size_gb: 20
+              type: thin
+              state: present
+              scsi_controller: 0
+              unit_number: 0
+              datastore: pool-nvme-vms
+        edge8:
+          ansible_host: 172.16.10.88
+          ip: 172.16.10.88
+          gateway: 172.16.10.254
+          mask: 255.255.255.0
+          dns: 172.16.10.2
+          memory: 4192
+          cores: 2
+          datastore: pool-nvme-vms
+          disks:
+            - size_gb: 20
+              type: thin
+              state: present
+              scsi_controller: 0
+              unit_number: 0
+              datastore: pool-nvme-vms
+        edge9:
+          ansible_host: 172.16.10.89
+          ip: 172.16.10.89
+          gateway: 172.16.10.254
+          mask: 255.255.255.0
+          dns: 172.16.10.2
+          memory: 4192
+          cores: 2
+          datastore: pool-nvme-vms
+          disks:
+            - size_gb: 20
+              type: thin
+              state: present
+              scsi_controller: 0
+              unit_number: 0
+              datastore: pool-nvme-vms

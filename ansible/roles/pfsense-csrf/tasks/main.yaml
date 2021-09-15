@@ -1,0 +1,9 @@
+- name: Grab Initial CSRF Token
+  ansible.builtin.include_tasks: roles/pfsense-csrf/tasks/token-initial.yaml
+  when:
+    - csrf_initial
+
+- name: Grab Updated CSRF Token
+  ansible.builtin.include_tasks: roles/pfsense-csrf/tasks/token-update.yaml
+  when:
+    - not csrf_initial

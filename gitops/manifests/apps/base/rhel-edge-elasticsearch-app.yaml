@@ -1,0 +1,19 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: rhel-edge-elasticsearch
+  labels:
+    gitops.ownedBy: rhel-edge-components
+spec:
+  destination:
+    namespace: openshift-gitops
+    server: https://kubernetes.default.svc
+  project: rhel-edge-components
+  source:
+    path: gitops/manifests/elasticsearch/base
+    repoURL: https://github.com/nasx/rfe-vmware-testing.git
+    targetRevision: main
+  syncPolicy:
+    automated:
+      prune: false
+      selfHeal: true
