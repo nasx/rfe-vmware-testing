@@ -1,6 +1,8 @@
 apiVersion: kibana.k8s.elastic.co/v1
 kind: Kibana
 metadata:
+  annotations:
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
   name: rhel-edge-kibana
   namespace: rhel-edge-elasticsearch
 spec:
