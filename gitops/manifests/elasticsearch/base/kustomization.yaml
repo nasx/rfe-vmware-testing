@@ -3,4 +3,5 @@ kind: Kustomization
 
 resources:
   - rhel-edge-elasticsearch-namespace.yaml
+  - rhel-edge-elasticsearch-cluster.yaml
   - subscription.yaml
