@@ -1,0 +1,10 @@
+elasticsearch_allow_unsigned_certs: "on"
+elasticsearch_cluster_name: rhel-edge-elasticsearch-cluster
+elasticsearch_cluster_namespace: rhel-edge-elasticsearch
+elasticsearch_cluster_route_name: rhel-edge-elasticsearch-cluster-http
+elasticsearch_error_file: /var/lib/rsyslog/es-errors.log
+elasticsearch_port: 443
+elasticsearch_search_index: rsyslog-index
+elasticsearch_skip_verify_host: "on"
+elasticsearch_user: elastic
+elasticsearch_user_secret: rhel-edge-elasticsearch-cluster-es-elastic-user

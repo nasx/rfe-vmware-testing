@@ -1,0 +1,63 @@
+- name: Assert Required Variables are Defined
+  ansible.builtin.assert:
+    that:
+      - elasticsearch_allow_unsigned_certs is defined
+      - elasticsearch_cluster_name is defined
+      - elasticsearch_cluster_namespace is defined
+      - elasticsearch_cluster_route_name is defined
+      - elasticsearch_error_file is defined
+      - elasticsearch_port is defined
+      - elasticsearch_search_index is defined
+      - elasticsearch_skip_verify_host is defined
+      - elasticsearch_user is defined
+      - elasticsearch_user_secret is defined
+
+- name: Get Elasticsearch Route
+  community.kubernetes.k8s_info:
+    api_version: route.openshift.io/v1
+    kind: Route
+    name: "{{ elasticsearch_cluster_route_name }}"
+    namespace: "{{ elasticsearch_cluster_namespace }}"
+    validate_certs: no
+  become: no
+  delegate_to: localhost
+  failed_when:
+    - elasticsearch_route.resources[0].spec.host is not defined
+  register: elasticsearch_route
+  run_once: yes
+
+- name: Get Elasticsearch User Credentials
+  community.kubernetes.k8s_info:
+    api_version: v1
+    kind: Secret
+    name: "{{ elasticsearch_user_secret }}"
+    namespace: "{{ elasticsearch_cluster_namespace }}"
+    validate_certs: no
+  become: no
+  delegate_to: localhost
+  failed_when:
+    - elasticsearch_password.resources[0].data.elastic is not defined
+  register: elasticsearch_password
+  run_once: yes
+
+- name: Allow rsyslog to Send Remote Traffic
+  community.general.seport:
+    ports: "{{ elasticsearch_port }}"
+    proto: tcp
+    setype: syslog_tls_port_t
+    state: present
+
+- name: Copy rsyslog Configuration
+  ansible.builtin.template:
+    src: templates/elasticsearch.j2
+    dest: /etc/rsyslog.d/elasticsearch.conf
+    owner: root
+    group: root
+    mode: 0640
+    setype: syslog_conf_t
+
+- name: Enable/Restart rsyslog
+  ansible.builtin.systemd:
+    name: rsyslog
+    state: restarted
+    enabled: yes

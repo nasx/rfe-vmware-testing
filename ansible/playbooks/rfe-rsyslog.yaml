@@ -1,0 +1,5 @@
+- name: Configure rsyslog on RHEL Edge Hosts
+  become: yes
+  hosts: pg
+  roles:
+    - role: rfe-rsyslog

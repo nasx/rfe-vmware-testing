@@ -1,15 +1,15 @@
 ---
 all:
   vars:
-    provision_group: pg
     base_domain: lab.uc2.io
-    vcenter_network: Lab Network
-    vcenter_datastore: pool-nvme-vms
-    vcenter_datacenter: PWC
+    provision_group: pg
     vcenter_cluster: Primary
+    vcenter_datacenter: PWC
+    vcenter_datastore: pool-nvme-vms
     vcenter_folder: edge
     vcenter_iso_datastore: pool-nvme-vms
     vcenter_iso_name: 8f3e035e-e1ed-4d70-9984-9976152d35fa-auto.iso
+    vcenter_network: Lab Network
   children:
     pg:
       hosts:
