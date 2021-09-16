@@ -6,4 +6,5 @@ resources:
   - rhel-edge-elasticsearch-namespace.yaml
   - rhel-edge-elasticsearch-route.yaml
   - rhel-edge-kibana.yaml
+  - rhel-edge-kibana-route.yaml
   - subscription.yaml

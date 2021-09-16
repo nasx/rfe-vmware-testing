@@ -1,0 +1,12 @@
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: rhel-edge-kibana
+  namespace: rhel-edge-elasticsearch
+spec:
+  tls:
+    insecureEdgeTerminationPolicy: Redirect
+    termination: passthrough
+  to:
+    kind: Service
+    name: rhel-edge-kibana-kb-http
