@@ -2,6 +2,7 @@ apiVersion: route.openshift.io/v1
 kind: Route
 metadata:
   name: rhel-edge-elasticsearch-cluster-http
+  namespace: rhel-edge-elasticsearch
 spec:
   tls:
     insecureEdgeTerminationPolicy: Redirect
