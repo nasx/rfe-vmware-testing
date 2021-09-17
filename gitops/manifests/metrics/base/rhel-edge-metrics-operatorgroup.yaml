@@ -1,0 +1,8 @@
+apiVersion: operators.coreos.com/v1
+kind: OperatorGroup
+metadata:
+  name: rhel-edge-metrics-operatorgroup
+  namespace: rhel-edge-metrics
+spec:
+  targetNamespaces:
+    - rhel-edge-metrics
