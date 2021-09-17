@@ -4,6 +4,7 @@ kind: Kustomization
 resources:
   - cluster-monitoring-config.yaml
   - grafana-subscription.yaml
+  - rhel-edge-grafana.yaml
   - rhel-edge-metrics-namespace.yaml
   - rhel-edge-metrics-operatorgroup.yaml
   - rhel-edge-metrics-serviceaccount.yaml
