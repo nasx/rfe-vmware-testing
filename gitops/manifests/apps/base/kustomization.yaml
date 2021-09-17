@@ -3,3 +3,4 @@ kind: Kustomization
 
 resources:
   - rhel-edge-elasticsearch-app.yaml
+  - rhel-edge-metrics-app.yaml

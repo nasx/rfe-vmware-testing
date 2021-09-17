@@ -1,0 +1,4 @@
+metrics_namespace: rhel-edge-metrics
+registry_imagestream: rhel8-pcp
+registry_imagestream_namespace: rhel-edge-metrics
+registry_service_account: image-puller

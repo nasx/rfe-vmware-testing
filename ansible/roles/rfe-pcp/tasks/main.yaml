@@ -1,0 +1,120 @@
+- name: Get OpenShift Registry Route
+  community.kubernetes.k8s_info:
+    api_version: route.openshift.io/v1
+    kind: Route
+    name: default-route
+    namespace: openshift-image-registry
+    validate_certs: no
+  become: no
+  delegate_to: localhost
+  register: registry_route
+  run_once: yes
+
+- name: Get Service Account Secret List
+  community.kubernetes.k8s_info:
+    api_version: v1
+    kind: ServiceAccount
+    name: "{{ registry_service_account }}"
+    namespace: "{{ registry_imagestream_namespace }}"
+    validate_certs: no
+  become: no
+  delegate_to: localhost
+  register: service_account_results
+  run_once: yes
+
+- name: Set Token Secret Name
+  ansible.builtin.set_fact:
+    token_secret_name: |
+      {{
+        service_account_results.resources[0] | 
+        community.general.json_query("secrets[?contains(name, 'token')].name")
+      }}
+  run_once: yes
+
+- name: Get Service Account Token
+  community.kubernetes.k8s_info:
+    api_version: v1
+    kind: Secret
+    name: "{{ token_secret_name[0] }}"
+    namespace: "{{ registry_imagestream_namespace }}"
+    validate_certs: no
+  become: no
+  delegate_to: localhost
+  register: token_results
+  run_once: yes
+
+- name: Pull PCP Image from OpenShift Internal Registry
+  containers.podman.podman_image:
+    name: "{{ registry_route.resources[0].spec.host }}/{{ registry_imagestream_namespace }}/{{ registry_imagestream }}:latest"
+    password: "{{ token_results.resources[0].data.token | b64decode }}"
+    username: "{{ registry_service_account }}"
+    validate_certs: no
+
+- name: Copy PCP Container systemd Unit File
+  ansible.builtin.template:
+    dest: /etc/systemd/system/container-pcp.service
+    group: root
+    mode: 0644
+    owner: root
+    setype: systemd_unit_file_t
+    src: templates/container-pcp.service.j2
+
+- name: Enable container-pcp Service
+  ansible.builtin.systemd:
+    daemon_reload: yes
+    enabled: yes
+    name: container-pcp
+    state: started
+
+- name: Enable PCP Ports in Firewall
+  ansible.posix.firewalld:
+    immediate: yes
+    permanent: yes
+    port: "{{ item }}/tcp"
+    state: enabled
+  loop:
+    - 44323
+    - 44322
+    - 44321
+
+- name: Create Endpoints
+  community.kubernetes.k8s:
+    resource_definition:
+      kind: Endpoints
+      apiVersion: v1
+      metadata:
+        name: "{{ inventory_hostname }}"
+        namespace: "{{ metrics_namespace }}"
+      subsets:
+        - addresses:
+            - ip: "{{ hostvars[inventory_hostname].ansible_host }}"
+          ports:
+            - port: 44323
+              name: metrics
+    state: present
+  become: no
+  delegate_to: localhost
+
+- name: Create Services
+  community.kubernetes.k8s:
+    resource_definition:
+      kind: Service
+      apiVersion: v1
+      metadata:
+        labels:
+          endpoint: edge
+        name: "{{ inventory_hostname }}"
+        namespace: "{{ metrics_namespace }}"
+      spec:
+        clusterIP: None
+        ports:
+          - name: metrics
+            protocol: TCP
+            port: 44323
+            targetPort: 44323
+            nodePort: 0
+      selector: {}
+    state: present
+  become: no
+  delegate_to: localhost
+ 

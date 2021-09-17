@@ -1,0 +1,10 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - cluster-monitoring-config.yaml
+  - rhel-edge-metrics-namespace.yaml
+  - rhel-edge-serviceaccount.yaml
+  - rhel-edge-servicemonitor.yaml
+  - rhel8-pcp-imagestream.yaml
+  - user-workload-monitoring-config.yaml

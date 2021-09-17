@@ -1,0 +1,6 @@
+- name: Configure PCP on RHEL Edge Hosts
+  become: yes
+  gather_facts: no
+  hosts: pg
+  roles:
+    - role: rfe-pcp

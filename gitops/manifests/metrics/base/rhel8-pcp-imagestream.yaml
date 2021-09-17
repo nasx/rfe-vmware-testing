@@ -1,0 +1,17 @@
+apiVersion: image.openshift.io/v1
+kind: ImageStream
+metadata:
+  name: rhel8-pcp
+  namespace: rhel-edge-metrics
+spec:
+  lookupPolicy:
+    local: false
+  tags:
+  - annotations: null
+    from:
+      kind: DockerImage
+      name: registry.redhat.io/rhel8/pcp:latest
+    importPolicy: {}
+    name: latest
+    referencePolicy:
+      type: Source

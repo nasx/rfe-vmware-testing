@@ -1,0 +1,15 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  labels:
+    endpoint: edge
+  name: rhel-edge-metrics
+  namespace: rhel-edge-metrics
+spec:
+  endpoints:
+  - interval: 10s
+    port: metrics
+    scheme: http
+  selector:
+    matchLabels:
+      endpoint: edge
