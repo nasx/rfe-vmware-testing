@@ -4,6 +4,26 @@
   vars:
     metrics_namespace: rhel-edge-metrics
   tasks:
+    - name: Clean up ~/.ssh/known_hosts
+      block:
+        - name: Remove Lines w/ Inventory Hostname in known_hosts
+          lineinfile:
+            dest: ~/.ssh/known_hosts
+            state: absent
+            regexp: "^.*{{ item }}.{{ base_domain }}.*$"
+          with_items:
+            - "{{ groups[provision_group] }}"
+
+        - name: Remove Lines w/ Inventory IP in known_hosts
+          lineinfile:
+            dest: ~/.ssh/known_hosts
+            state: absent
+            regexp: "^.*{{ lookup('dig', item) }}.*$"
+          with_items:
+            - "{{ groups[provision_group] }}"
+      tags:
+        - known_hosts
+
     - name: Delete Endpoints
       community.kubernetes.k8s:
         api_version: v1
