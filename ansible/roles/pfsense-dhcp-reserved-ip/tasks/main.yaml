@@ -1,3 +1,13 @@
+- name: Assert Minimum Variables Defined
+  ansible.builtin.assert:
+    that:
+      - pd_cid is defined
+      - pd_dns1 is defined
+      - pd_gateway is defined
+      - pd_hostname is defined
+      - pd_ipaddr is defined
+      - pd_mac is defined
+
 - name: Grab CSRF Token
   ansible.builtin.include_role:
     name: pfsense-csrf

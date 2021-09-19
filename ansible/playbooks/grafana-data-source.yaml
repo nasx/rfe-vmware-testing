@@ -1,0 +1,5 @@
+- name: Set Grafana Datasource
+  gather_facts: no
+  hosts: localhost
+  roles:
+    - role: grafana-data-source

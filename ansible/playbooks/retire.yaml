@@ -1,0 +1,118 @@
+- name: Retire Instances
+  gather_facts: no
+  hosts: localhost
+  vars:
+    metrics_namespace: rhel-edge-metrics
+  tasks:
+    - name: Delete Endpoints
+      community.kubernetes.k8s:
+        api_version: v1
+        kind: Endpoints
+        name: "{{ item }}"
+        namespace: "{{ metrics_namespace }}"
+        state: absent
+      tags:
+        - metrics
+      with_items:
+        - "{{ groups[provision_group] }}"
+
+    - name: Delete Services
+      community.kubernetes.k8s:
+        api_version: v1
+        kind: Service
+        name: "{{ item }}"
+        namespace: "{{ metrics_namespace }}"
+        state: absent
+      tags:
+        - metrics
+      with_items:
+        - "{{ groups[provision_group] }}"
+
+    - name: Get VM Facts
+      community.vmware.vmware_guest_info:
+        datacenter: "{{ vcenter_datacenter }}"
+        hostname: "{{ vcenter_hostname }}"
+        name: "{{ item }}.{{ base_domain }}"
+        password: "{{ vcenter_password }}"
+        username: "{{ vcenter_username }}"
+        validate_certs: no
+      register: vmware_guest_info_results
+      tags:
+        - vms
+      with_items:
+        - "{{ groups[provision_group] }}"
+
+    - name: Combine Hostname/IP/MAC into Dictionary for Easy Lookup
+      ansible.builtin.set_fact:
+        host_mac_list: >-
+          {{
+            host_mac_list | default([]) +
+            [
+              {
+                'name': item.item,
+                'mac': item.instance.hw_eth0.macaddress
+              }
+            ]
+          }}
+      tags:
+        - vms
+      with_items:
+        - "{{ vmware_guest_info_results.results }}"
+
+    - name: Delete pfSense DHCP Reservations
+      ansible.builtin.include_role:
+        name: pfsense-dhcp-reserved-ip-retire
+      loop: "{{ host_mac_list }}"
+      tags:
+        - dhcp
+      vars:
+        pd_mac: "{{ item.mac }}"
+
+    - name: Delete A Records
+      community.general.ipa_dnsrecord:
+        ipa_host: "{{ ipa_hostname }}"
+        ipa_pass: "{{ ipa_password }}"
+        ipa_user: "{{ ipa_username }}"
+        record_name: "{{ item }}"
+        record_type: A
+        record_value: "{{ hostvars[item].ip }}"
+        state: absent
+        validate_certs: no
+        zone_name: "{{ base_domain }}"
+      tags:
+        - dns
+      with_items:
+        - "{{ groups[provision_group] }}"
+
+    - name: Delete PTR Records
+      community.general.ipa_dnsrecord:
+        ipa_host: "{{ ipa_hostname }}"
+        ipa_pass: "{{ ipa_password }}"
+        ipa_user: "{{ ipa_username }}"
+        record_name: "{{ hostvars[item].ip.split('.')[-1] }}"
+        record_type: PTR
+        record_value: "{{ item }}.{{ base_domain }}."
+        state: absent
+        validate_certs: no
+        zone_name: "{{ hostvars[item].ip.split('.')[-2] }}.{{ hostvars[item].ip.split('.')[-3] }}.{{ hostvars[item].ip.split('.')[-4] }}.in-addr.arpa."
+      tags:
+        - dns
+      with_items:
+        - "{{ groups[provision_group] }}"
+
+    - name: Delete VMs
+      community.vmware.vmware_guest:
+        cluster: "{{ vcenter_cluster }}"
+        datacenter: "{{ vcenter_datacenter }}"
+        force: yes
+        hostname: "{{ vcenter_hostname }}"
+        name: "{{ item }}.{{ base_domain }}"
+        password: "{{ vcenter_password }}"
+        state: absent
+        username: "{{ vcenter_username }}"
+        validate_certs: no
+      register: vmware_guest_results
+      tags:
+        - vms
+      with_items:
+        - "{{ groups[provision_group] }}" 

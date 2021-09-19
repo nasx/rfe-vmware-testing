@@ -1,0 +1,57 @@
+- name: Set Payload for DHCP Reservation
+  ansible.builtin.set_fact:
+    body: >-
+      {{
+        [
+          ["__csrf_magic",  csrf_magic],
+          ["if", pfsense_interface],
+          ["act", "del"],
+          ["id", mac_id]
+        ]
+      }}
+
+- name: Delete DHCP Reservation
+  ansible.builtin.uri:
+    body_format: form-urlencoded
+    body: "{{ body }}"
+    headers:
+      Cookie: "{{ pfsense_content.cookies_string }}"
+    method: POST
+    return_content: yes
+    status_code: [200, 302]
+    url: "https://{{ pfsense_hostname }}/services_dhcp.php?if={{ pfsense_interface }}&act=del&id={{ mac_id }}"
+  register: pfsense_content
+
+- name: Grab CSRF Token
+  ansible.builtin.include_role:
+    name: pfsense-csrf
+  vars:
+    csrf_uri: "/services_dhcp_edit.php?if={{ pfsense_interface }}"
+
+- name: Set Payload
+  ansible.builtin.set_fact:
+    body: >-
+      {{
+        [
+          ["__csrf_magic",  csrf_magic],
+          ["apply", "Apply Changes"]
+        ]
+      }}
+
+- name: Update DHCP Record
+  ansible.builtin.uri:
+    body_format: form-urlencoded
+    body: "{{ body }}"
+    headers:
+      Cookie: "{{ pfsense_content.cookies_string }}"
+    method: POST
+    return_content: yes
+    status_code: [200, 302]
+    url: "https://{{ pfsense_hostname }}/services_dhcp.php?if={{ pfsense_interface }}"
+  register: pfsense_content
+
+- name: Grab CSRF Token
+  ansible.builtin.include_role:
+    name: pfsense-csrf
+  vars:
+    csrf_uri: "/services_dhcp.php?if={{ pfsense_interface }}"

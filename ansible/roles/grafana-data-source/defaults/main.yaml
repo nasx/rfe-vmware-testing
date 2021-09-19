@@ -1,0 +1,2 @@
+metrics_namespace: rhel-edge-metrics
+grafana_service_account: grafana-serviceaccount
