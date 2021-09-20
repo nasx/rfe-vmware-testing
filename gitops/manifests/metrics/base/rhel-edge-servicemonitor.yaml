@@ -7,9 +7,10 @@ metadata:
   namespace: rhel-edge-metrics
 spec:
   endpoints:
-  - interval: 10s
+  - interval: 30s
     port: metrics
     scheme: http
+    scrapeTimeout: 30s
   selector:
     matchLabels:
       endpoint: edge

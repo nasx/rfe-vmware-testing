@@ -43,6 +43,25 @@
   register: token_results
   run_once: yes
 
+- name: Create Config Directory
+  ansible.builtin.file:
+    mode: 0755
+    path: "{{ pcp_container_config_directory }}/etc/pcp/pmcd"
+    state: directory
+
+- name: Copy PCP pmcd Config Files
+  ansible.builtin.copy:
+    dest: "{{ pcp_container_config_directory }}/etc/pcp/pmcd/{{ item }}"
+    group: root
+    mode: 0644
+    owner: root
+    setype: container_file_t
+    src: "files/{{ item }}"
+  loop:
+    - pmcd.conf
+    - pmcd.options
+    - rc.local
+
 - name: Pull PCP Image from OpenShift Internal Registry
   containers.podman.podman_image:
     name: "{{ registry_route.resources[0].spec.host }}/{{ registry_imagestream_namespace }}/{{ registry_imagestream }}:latest"
@@ -64,7 +83,7 @@
     daemon_reload: yes
     enabled: yes
     name: container-pcp
-    state: started
+    state: restarted
 
 - name: Enable PCP Ports in Firewall
   ansible.posix.firewalld:
